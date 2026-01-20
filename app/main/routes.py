@@ -56,13 +56,23 @@ def dashboard():
 
     ticker_items = [t.description for t in timeline[-3:]]
 
+    emails = EmailItem.query.filter_by(
+    scenario_id=scenario.id
+     ).order_by(EmailItem.created_at.desc()).all()
+    
+    rumors_count = SocialItem.query.filter_by(
+    scenario_id=scenario.id,
+    classification="rumor"
+    ).count()
+
+    
     counts = {
         "social": len(social_items),
         "news": len(news_items),
         "calls": len(calls),
-        "emails": 0,
+        "emails": len(emails),
         "authority": len(authorities),
-        "rumors": 0
+        "rumors": rumors_count
     }
 
     return render_template(

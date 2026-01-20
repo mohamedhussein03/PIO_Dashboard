@@ -31,13 +31,7 @@
     <div class="call-body">
       {{ call.summary }}
     </div>
-
-    <div class="call-tags">
-      <span class="tag media">media</span>
-      <span class="tag urgency {{ call.urgency|lower }}">{{ call.urgency|lower }}</span>
-      <span class="tag local">local</span>
-      <span class="tag inbound">Inbound</span>
-      <span class="tag action">Talking points needed</span>
+    
     <div class="call-tags">
       {% if call.is_media %}<span class="tag media">media</span>{% endif %}
       {% if call.urgency == "HIGH" %}<span class="tag high">high</span>{% endif %}

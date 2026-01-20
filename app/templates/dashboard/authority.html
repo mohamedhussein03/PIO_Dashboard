@@ -15,36 +15,40 @@
   {% endif %}
 </div>
 
-<div class="card">
-  <table class="data-table">
-    <thead>
-      <tr>
-        <th>Authority</th>
-        <th>Status</th>
-        <th>Action</th>
-        <th>Time</th>
-      </tr>
-    </thead>
-    <tbody>
-      {% for item in authorities %}
-      <tr>
-        <td>{{ item.authority_name }}</td>
-        <td>
-          <span class="status {{ item.status|lower|replace(' ', '-') }}">
-            {{ item.status }}
-          </span>
-        </td>
-        <td>{{ item.action }}</td>
-        <td>{{ item.created_at.strftime("%H:%M") }}</td>
-      </tr>
-      {% else %}
-      <tr>
-        <td colspan="4" class="empty">No authority interactions yet</td>
-      </tr>
-      {% endfor %}
-    </tbody>
-  </table>
+<div class="card authority-card">
+
+  {% for item in authorities %}
+    <div class="authority-row">
+
+      <div class="authority-main">
+        <div class="authority-name">
+          {{ item.authority_name }}
+        </div>
+
+        <div class="authority-action">
+          {{ item.action }}
+        </div>
+      </div>
+
+      <div class="authority-meta">
+        <span class="authority-status {{ item.status|lower|replace(' ', '-') }}">
+          {{ item.status }}
+        </span>
+
+        <span class="authority-time">
+          {{ item.created_at.strftime("%H:%M") }}
+        </span>
+      </div>
+
+    </div>
+  {% else %}
+    <div class="empty">
+      No authority interactions yet
+    </div>
+  {% endfor %}
+
 </div>
+
 
 {% include "dashboard/modals.html" %}
 
