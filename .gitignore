@@ -1,0 +1,12 @@
+pycache/
+pycache/
+*.pyc
+
+venv/
+
+instance/app.db
+
+app/static/uploads/
+
+.DS_store
+

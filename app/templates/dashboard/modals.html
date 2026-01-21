@@ -319,3 +319,74 @@
     </div>
 
 </div>
+
+<!-- WEATHER MODAL -->
+<div id="modal-weather" class="modal">
+    <div class="modal-overlay" onclick="closeModal('weather')"></div>
+
+    <div class="modal-panel">
+
+        <div class="modal-header">
+            <h2>Add Weather</h2>
+            <button class="modal-close" onclick="closeModal('weather')">
+                Close
+            </button>
+        </div>
+
+        <form method="POST" action="{{ url_for('main.add_weather') }}" class="modal-form">
+
+            <div class="form-grid">
+                <div>
+                    <label>Temperature (°C)</label>
+                    <input type="number" step="0.1" name="temperature_c" required>
+                </div>
+
+                <div>
+                    <label>Feels Like (°C)</label>
+                    <input type="number" step="0.1" name="feels_like_c">
+                </div>
+            </div>
+
+            <div class="form-grid">
+                <div>
+                    <label>Humidity (%)</label>
+                    <input type="number" min="0" max="100" name="humidity">
+                </div>
+
+                <div>
+                    <label>Air Quality</label>
+                    <input name="air_quality" placeholder="Good, Moderate, Unhealthy">
+                </div>
+            </div>
+
+            <button type="submit" class="btn-submit">
+                Save Weather
+            </button>
+
+        </form>
+
+    </div>
+</div>
+
+<div id="modal-timer" class="modal">
+    <div class="modal-overlay" onclick="closeModal('timer')"></div>
+
+    <div class="modal-panel">
+        <div class="modal-header">
+            <h2>Set Task Timer</h2>
+            <button class="modal-close" onclick="closeModal('timer')">Close</button>
+        </div>
+
+        <form onsubmit="startTimer(event)">
+            <label>Title</label>
+            <input id="timerInputTitle" required>
+
+            <label>Minutes</label>
+            <input type="number" id="timerInputMinutes" min="1" required>
+
+            <button type="submit" class="btn-submit">
+                Start
+            </button>
+        </form>
+    </div>
+</div>

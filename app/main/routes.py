@@ -5,6 +5,8 @@ from datetime import datetime
 from app.models import AuthorityItem
 from app.models import CallItem
 from app.models import EmailItem
+from app.models import WeatherItem
+
 
 import os
 import uuid
@@ -29,7 +31,9 @@ main_bp = Blueprint("main", __name__)
 @main_bp.route("/")
 @login_required
 def dashboard():
-    scenario = Scenario.query.filter_by(is_active=True).first()
+    scenario = Scenario.query.filter_by(status="ACTIVE").first()
+    
+
 
     if not scenario:
         return "No active scenario configured", 500
@@ -42,9 +46,14 @@ def dashboard():
         scenario_id=scenario.id
     ).order_by(NewsItem.created_at.desc()).all()
 
-    calls = CallItem.query.filter_by(
-        scenario_id=scenario.id
-    ).order_by(CallItem.created_at.desc()).all()
+    latest_calls = (
+    CallItem.query
+    .filter_by(scenario_id=scenario.id)
+    .order_by(CallItem.created_at.desc())
+    .limit(5)
+    .all()
+)
+
 
     authorities = AuthorityItem.query.filter_by(
         scenario_id=scenario.id
@@ -54,7 +63,17 @@ def dashboard():
         scenario_id=scenario.id
     ).order_by(TimelineEvent.created_at.asc()).all()
 
-    ticker_items = [t.description for t in timeline[-3:]]
+    breaking_items = (
+    SocialItem.query
+    .filter_by(
+        scenario_id=scenario.id,
+        urgency="HIGH"
+    )
+    .order_by(SocialItem.created_at.desc())
+    .limit(10)
+    .all()
+)
+
 
     emails = EmailItem.query.filter_by(
     scenario_id=scenario.id
@@ -64,16 +83,31 @@ def dashboard():
     scenario_id=scenario.id,
     classification="rumor"
     ).count()
+    
+    weather_items = (
+    WeatherItem.query
+    .filter_by(scenario_id=scenario.id)
+    .order_by(WeatherItem.created_at.desc())
+    .all()
+    )
+
+    latest_weather = weather_items[0] if weather_items else None
+
+    calls_count = CallItem.query.filter_by(
+    scenario_id=scenario.id
+    ).count()
+
 
     
     counts = {
-        "social": len(social_items),
-        "news": len(news_items),
-        "calls": len(calls),
-        "emails": len(emails),
-        "authority": len(authorities),
-        "rumors": rumors_count
+    "social": len(social_items),
+    "news": len(news_items),
+    "calls": calls_count,
+    "emails": len(emails),
+    "authority": len(authorities),
+    "rumors": rumors_count
     }
+
 
     return render_template(
         "dashboard/home.html",
@@ -81,10 +115,12 @@ def dashboard():
         counts=counts,
         social_items=social_items,
         news_items=news_items,
-        calls=calls,
+        latest_calls=latest_calls,
         authorities=authorities,
         timeline=timeline,
-        ticker_items=ticker_items,
+        breaking_items=breaking_items,
+        weather_items=weather_items,
+        latest_weather=latest_weather,
         is_admin=(current_user.role == "admin")
     )
 
@@ -92,7 +128,7 @@ def dashboard():
 @main_bp.route("/authority")
 @login_required
 def authority():
-    scenario = Scenario.query.filter_by(is_active=True).first()
+    scenario = Scenario.query.filter_by(status="ACTIVE").first()
 
     authorities = AuthorityItem.query.filter_by(
         scenario_id=scenario.id
@@ -110,13 +146,16 @@ def authority():
 @main_bp.route("/calls")
 @login_required
 def calls():
-    scenario = Scenario.query.filter_by(is_active=True).first()
+    scenario = Scenario.query.filter_by(status="ACTIVE").first()
+
     if not scenario:
         return "No active scenario", 500
 
     call_items = CallItem.query.filter_by(
         scenario_id=scenario.id
     ).order_by(CallItem.created_at.desc()).all()
+    
+
 
     return render_template(
         "dashboard/calls.html",
@@ -129,7 +168,7 @@ def calls():
 @main_bp.route("/emails")
 @login_required
 def emails():
-    scenario = Scenario.query.filter_by(is_active=True).first()
+    scenario = Scenario.query.filter_by(status="ACTIVE").first()
 
     if not scenario:
         return "No active scenario", 200
@@ -150,7 +189,7 @@ def emails():
 @main_bp.route("/incidents")
 @login_required
 def incidents():
-    active = Scenario.query.filter_by(is_active=True).first()
+    active = Scenario.query.filter_by(status="ACTIVE").first()
     return render_template(
         "dashboard/incidents.html",
         incident=active,
@@ -164,7 +203,7 @@ def add_social():
     if current_user.role != "admin":
         return redirect(url_for("main.dashboard"))
 
-    scenario = Scenario.query.filter_by(is_active=True).first()
+    scenario = Scenario.query.filter_by(status="ACTIVE").first()
 
     image_rel = _save_image(request.files.get("image"), "social")
 
@@ -195,7 +234,7 @@ def add_news():
     if current_user.role != "admin":
         return redirect(url_for("main.dashboard"))
 
-    scenario = Scenario.query.filter_by(is_active=True).first()
+    scenario = Scenario.query.filter_by(status="ACTIVE").first()
 
     image_rel = _save_image(request.files.get("image"), "news")
 
@@ -221,7 +260,8 @@ def add_call():
     if current_user.role != "admin":
         return redirect(url_for("main.calls"))
 
-    scenario = Scenario.query.filter_by(is_active=True).first()
+    scenario = Scenario.query.filter_by(status="ACTIVE").first()
+
 
     item = CallItem(
     scenario_id=scenario.id,
@@ -246,7 +286,7 @@ def add_authority():
     if current_user.role != "admin":
         return redirect(url_for("main.dashboard"))
 
-    scenario = Scenario.query.filter_by(is_active=True).first()
+    scenario = Scenario.query.filter_by(status="ACTIVE").first()
 
     item = AuthorityItem(
         scenario_id=scenario.id,
@@ -267,7 +307,7 @@ def add_email():
     if current_user.role != "admin":
         return redirect(url_for("main.emails"))
 
-    scenario = Scenario.query.filter_by(is_active=True).first()
+    scenario = Scenario.query.filter_by(status="ACTIVE").first()
 
     item = EmailItem(
         scenario_id=scenario.id,
@@ -286,20 +326,23 @@ def add_email():
 @main_bp.route("/incidents/add", methods=["POST"])
 @login_required
 def add_incident():
+
     if current_user.role != "admin":
         return redirect(url_for("main.incidents"))
 
-    Scenario.query.update({Scenario.is_active: False})
+    # Archive all existing incidents
+    Scenario.query.update({Scenario.status: "ARCHIVED"})
+    db.session.commit()
 
+    # Create new ACTIVE incident
     incident = Scenario(
         title=request.form.get("title"),
         location=request.form.get("location"),
         sector=request.form.get("sector"),
         timezone=request.form.get("timezone"),
-        status="ACTIVE",
         window=request.form.get("window"),
         description=request.form.get("description"),
-        is_active=True
+        status="ACTIVE"
     )
 
     db.session.add(incident)
@@ -308,13 +351,14 @@ def add_incident():
     return redirect(url_for("main.incidents"))
 
 
+
 @main_bp.route("/incidents/remove", methods=["POST"])
 @login_required
 def remove_incident():
     if current_user.role != "admin":
         return redirect(url_for("main.incidents"))
 
-    active = Scenario.query.filter_by(is_active=True).first()
+    active = Scenario.query.filter_by(status="ACTIVE").first()
     if active:
         db.session.delete(active)
         db.session.commit()
@@ -422,4 +466,24 @@ def edit_news(item_id: int):
             _delete_image(old)
 
     db.session.commit()
+    return redirect(url_for("main.dashboard"))
+
+@main_bp.route("/weather/add", methods=["POST"])
+@login_required
+def add_weather():
+    scenario = Scenario.query.filter_by(status="ACTIVE").first()
+    if not scenario:
+        return redirect(url_for("main.dashboard"))
+
+    weather = WeatherItem(
+        scenario_id=scenario.id,
+        temperature_c=float(request.form.get("temperature_c")),
+        feels_like_c=float(request.form.get("feels_like_c")) if request.form.get("feels_like_c") else None,
+        humidity=int(request.form.get("humidity")) if request.form.get("humidity") else None,
+        air_quality=request.form.get("air_quality"),
+    )
+
+    db.session.add(weather)
+    db.session.commit()
+
     return redirect(url_for("main.dashboard"))

@@ -114,10 +114,10 @@ button:hover {
 }
 
 .sidebar-logo {
-    width: 120px;
-    height: 120px;
+    width: 100px;
+    height: 100px;
     margin: 20px auto;
-    border-radius: 70%;
+    border-radius: 20%;
     background: #ffffff;
     display: flex;
     align-items: center;
@@ -1237,4 +1237,264 @@ button:hover {
 .authority-status.action-taken {
   background: rgba(34,197,94,0.18);
   color: #4ade80;
+}
+
+.weather-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.weather-nav {
+    display: flex;
+    gap: 8px;
+}
+
+.weather-nav button {
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    border: none;
+    background: #0aa000;
+    color: #ffffff;
+    font-size: 18px;
+    font-weight: bold;
+    cursor: pointer;
+    line-height: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.weather-nav button:hover {
+    background: #088800;
+}
+
+.weather-nav button:active {
+    transform: scale(0.95);
+}
+
+.weather-temp {
+    font-size: 32px;
+    font-weight: bold;
+}
+
+.weather-feels {
+    color: #777;
+}
+
+.weather-time {
+    font-size: 12px;
+    margin-top: 6px;
+    color: #888;
+}
+
+.calls-home-card {
+    margin-top: 20px;
+}
+
+.calls-home-list {
+    display: grid;
+    gap: 14px;
+    margin-top: 10px;
+}
+
+.calls-home-item {
+    padding: 14px 16px;
+    border-radius: 12px;
+    background: linear-gradient(180deg, #314a83b4, #0b1e72);
+}
+
+.calls-home-top {
+    display: flex;
+    justify-content: space-between;
+    font-size: 14px;
+    font-weight: 600;
+}
+
+.calls-home-top .caller {
+    color: #ffffff;
+}
+
+.calls-home-top .time {
+    color: #9ca3af;
+    font-size: 12px;
+}
+
+.calls-home-tags {
+    margin-top: 8px;
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.topbar {
+    display: grid;
+    grid-template-columns: 1.4fr 1fr 0.8fr 0.8fr;
+    gap: 16px;
+}
+
+/* Live clock compact */
+.live-clock-card .clock {
+    font-size: 30px;
+}
+
+/* Timer compact */
+.timer-card {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+.timer-count {
+    font-size: 26px;
+    font-weight: 700;
+}
+
+.timer-title {
+    font-size: 13px;
+    opacity: 0.8;
+}
+
+.timer-alert {
+    color: #ff4d4d;
+    font-weight: bold;
+    font-size: 12px;
+}
+
+/* --- Timer expiry flash --- */
+.timer-count.expired {
+    color: #ff2b2b;
+    animation: timerFlash 1s infinite;
+}
+
+@keyframes timerFlash {
+    0%   { opacity: 1; }
+    50%  { opacity: 0.3; }
+    100% { opacity: 1; }
+}
+
+.timer-alert {
+    color: #ff2b2b;
+    font-weight: bold;
+    font-size: 12px;
+    margin-top: 6px;
+    text-align: center;
+}
+
+/* --- Incident card --- */
+
+.incident-card {
+    padding: 18px;
+}
+
+.incident-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+}
+
+.incident-header h3 {
+    font-size: 20px;
+    font-weight: 600;
+    letter-spacing: 0.3px;
+}
+
+.incident-status {
+    background: #e8f7ee;
+    color: #1f9d55;
+    font-size: 14px;
+    font-weight: 600;
+    padding: 4px 10px;
+    border-radius: 12px;
+}
+
+.incident-title {
+    font-size: 18px;
+    font-weight: 700;
+    margin-bottom: 8px;
+}
+
+.incident-window {
+    font-size: 13px;
+    color: #666;
+    margin-bottom: 10px;
+}
+
+.incident-description {
+    font-size: 14px;
+    line-height: 1.5;
+    color: #333;
+}
+
+/* --- Theme toggle button --- */
+
+.theme-toggle-btn {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 12px 16px;
+    background: none;
+    border: none;
+    color: #444;
+    cursor: pointer;
+    font-size: 14px;
+}
+
+.theme-toggle-btn i {
+    font-size: 16px;
+}
+
+.theme-toggle-btn:hover {
+    background: rgba(0, 0, 0, 0.06);
+}
+/* --- Dark mode --- */
+
+body {
+    transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+body[data-theme="dark"] {
+    background-color: #0e1117;
+    color: #e6e6e6;
+}
+
+body[data-theme="dark"] .sidebar {
+    background-color: #0b0f14;
+}
+
+body[data-theme="dark"] .content {
+    background-color: #0e1117;
+}
+
+body[data-theme="dark"] .card {
+    background-color: #161b22;
+    color: #e6e6e6;
+}
+
+body[data-theme="dark"] .card-header h3,
+body[data-theme="dark"] h3,
+body[data-theme="dark"] strong {
+    color: #f3f4f6;
+}
+
+body[data-theme="dark"] .sub,
+body[data-theme="dark"] .label,
+body[data-theme="dark"] .meta {
+    color: #9ca3af;
+}
+
+body[data-theme="dark"] .theme-toggle-btn {
+    color: #facc15;
+}
+
+body[data-theme="dark"] .logout-btn {
+    color: #e6e6e6;
+}
+
+body[data-theme="dark"] .tag {
+    background-color: #1f2937;
+    color: #d1d5db;
 }

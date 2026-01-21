@@ -22,7 +22,6 @@ class Scenario(db.Model):
     window = db.Column(db.String(100))
     description = db.Column(db.Text)
 
-    is_active = db.Column(db.Boolean, default=False)
     last_updated = db.Column(db.DateTime, default=datetime.utcnow)
 
     social_items = db.relationship("SocialItem", backref="scenario", lazy=True)
@@ -31,6 +30,8 @@ class Scenario(db.Model):
     emails = db.relationship("EmailItem", backref="scenario", lazy=True)
     authorities = db.relationship("AuthorityItem", backref="scenario", lazy=True)
     timeline = db.relationship("TimelineEvent", backref="scenario", lazy=True)
+    weather_items = db.relationship("WeatherItem", backref="scenario", lazy=True)
+
 
 
 from datetime import datetime
@@ -116,5 +117,16 @@ class TimelineEvent(db.Model):
 
     time_label = db.Column(db.String(50))
     description = db.Column(db.Text)
+
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+
+class WeatherItem(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    scenario_id = db.Column(db.Integer, db.ForeignKey("scenario.id"), nullable=False)
+
+    temperature_c = db.Column(db.Float, nullable=False)
+    feels_like_c = db.Column(db.Float)
+    humidity = db.Column(db.Integer)
+    air_quality = db.Column(db.String(100))
 
     created_at = db.Column(db.DateTime, default=datetime.utcnow)

@@ -43,13 +43,20 @@
                 <span>Incidents</span>
             </a>
         </nav>
-
         <div class="sidebar-footer">
-            <a href="{{ url_for('auth.logout') }}" class="logout-btn">
-                <i class="fa-solid fa-right-from-bracket"></i>
-                <span>Logout</span>
-            </a>
-        </div>
+
+    <button type="button" class="theme-toggle-btn" onclick="toggleTheme()">
+        <i id="themeIcon" class="fa-solid fa-moon"></i>
+        <span>Theme</span>
+    </button>
+
+    <a href="{{ url_for('auth.logout') }}" class="logout-btn">
+        <i class="fa-solid fa-right-from-bracket"></i>
+        <span>Logout</span>
+    </a>
+
+</div>
+
 
     </aside>
 
@@ -218,7 +225,18 @@ function openSocialEditFromEl(el) {
         tags: el.dataset.tags || "",
         image: el.dataset.image || ""
     });
+
+    const preview = document.getElementById("editSocialImagePreview");
+    if (el.dataset.image) {
+        preview.src = el.dataset.image;
+        preview.style.display = "block";
+    } else {
+        preview.style.display = "none";
+    }
+
+    openModal("editSocial");
 }
+
 </script>
 
 <script>
@@ -264,7 +282,18 @@ function openNewsEditFromEl(el) {
         text: el.dataset.text || "",
         image: el.dataset.image || ""
     });
+
+    const preview = document.getElementById("editNewsImagePreview");
+    if (el.dataset.image) {
+        preview.src = el.dataset.image;
+        preview.style.display = "block";
+    } else {
+        preview.style.display = "none";
+    }
+
+    openModal("editNews");
 }
+
 </script>
 
 <script>
@@ -281,6 +310,166 @@ function updateLiveClock() {
 updateLiveClock();
 setInterval(updateLiveClock, 1000);
 </script>
+
+<script>
+let weatherIndex = 0;
+let weatherNodes = [];
+
+document.addEventListener("DOMContentLoaded", function () {
+    const container = document.getElementById("weatherData");
+    if (!container) return;
+
+    weatherNodes = Array.from(container.children);
+    if (weatherNodes.length === 0) return;
+
+    weatherIndex = 0;
+    renderWeather();
+});
+
+function renderWeather() {
+    const el = weatherNodes[weatherIndex];
+    if (!el) return;
+
+    document.getElementById("weatherTemp").textContent =
+        el.dataset.temp + "°C";
+
+    document.getElementById("weatherFeels").textContent =
+        el.dataset.feels
+            ? "Feels like " + el.dataset.feels + "°C"
+            : "";
+
+    let meta = "";
+    if (el.dataset.humidity) {
+        meta += "<div>Humidity: " + el.dataset.humidity + "%</div>";
+    }
+    if (el.dataset.air) {
+        meta += "<div>Air quality: " + el.dataset.air + "</div>";
+    }
+    document.getElementById("weatherMeta").innerHTML = meta;
+
+    document.getElementById("weatherTime").textContent =
+        "Updated " + el.dataset.time;
+}
+
+function weatherPrev() {
+    if (weatherIndex < weatherNodes.length - 1) {
+        weatherIndex++;
+        renderWeather();
+    }
+}
+
+function weatherNext() {
+    if (weatherIndex > 0) {
+        weatherIndex--;
+        renderWeather();
+    }
+}
+</script>
+
+<script>
+let timerInterval = null;
+let timerSound = null;
+
+
+function loadTimer() {
+    const data = localStorage.getItem("incidentTimer");
+    if (!data) return;
+
+    const timer = JSON.parse(data);
+    renderTimer(timer);
+}
+
+function startTimer(e) {
+    e.preventDefault();
+
+    const title = document.getElementById("timerInputTitle").value;
+    const minutes = parseInt(document.getElementById("timerInputMinutes").value);
+
+    const endTime = Date.now() + minutes * 60 * 1000;
+
+    const timer = { title, endTime };
+    localStorage.setItem("incidentTimer", JSON.stringify(timer));
+
+    closeModal("timer");
+    renderTimer(timer);
+}
+
+function renderTimer(timer) {
+    document.getElementById("timerEmpty").style.display = "none";
+    document.getElementById("timerActive").style.display = "block";
+    document.getElementById("timerTitle").innerText = timer.title;
+
+    if (!timerSound) {
+        timerSound = new Audio("/static/sounds/alert.mp3");
+        timerSound.loop = true;
+    }
+
+    if (timerInterval) clearInterval(timerInterval);
+
+    timerInterval = setInterval(() => {
+        const remaining = timer.endTime - Date.now();
+
+        if (remaining <= 0) {
+            document.getElementById("timerCountdown").innerText = "00:00";
+            document.getElementById("timerAlert").style.display = "block";
+            document.getElementById("timerCountdown").classList.add("expired");
+
+            timerSound.play();
+            clearInterval(timerInterval);
+            timerInterval = null;
+            return;
+        }
+
+        const m = Math.floor(remaining / 60000);
+        const s = Math.floor((remaining % 60000) / 1000);
+
+        document.getElementById("timerCountdown").innerText =
+            String(m).padStart(2, "0") + ":" + String(s).padStart(2, "0");
+    }, 1000);
+}
+
+
+
+function clearTimer() {
+    localStorage.removeItem("incidentTimer");
+
+    if (timerInterval) {
+        clearInterval(timerInterval);
+        timerInterval = null;
+    }
+
+    if (timerSound) {
+        timerSound.pause();
+        timerSound.currentTime = 0;
+    }
+
+    document.getElementById("timerActive").style.display = "none";
+    document.getElementById("timerEmpty").style.display = "block";
+    document.getElementById("timerAlert").style.display = "none";
+    document.getElementById("timerCountdown").classList.remove("expired");
+}
+
+
+document.addEventListener("DOMContentLoaded", loadTimer);
+</script>
+
+<script>
+function toggleTheme() {
+    const body = document.body;
+    const icon = document.getElementById("themeIcon");
+
+    if (body.getAttribute("data-theme") === "dark") {
+        body.removeAttribute("data-theme");
+        icon.classList.remove("fa-sun");
+        icon.classList.add("fa-moon");
+    } else {
+        body.setAttribute("data-theme", "dark");
+        icon.classList.remove("fa-moon");
+        icon.classList.add("fa-sun");
+    }
+}
+</script>
+
 
 </body>
 </html>
